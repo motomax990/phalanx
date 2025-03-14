@@ -256,8 +256,7 @@ int main(){
     cout << endl;
     buildBaseMtr(mtr);
     printMap(mtr);
-    mtr[4][6] = 1;
-    mtr[5][7] = 1;
+
 
 	return 0;
 }
