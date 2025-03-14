@@ -11,7 +11,34 @@ const int64_t CPW = 14;
 char strLiter[CPH];
 char colLiter[CPW];
 
+void buildBaseMtr(vector < vector<int> > &mtr){
+    for (int i = 0; i < 3; ++i) mtr[0][i] = 2;
+    for (int i = 5; i < 9; ++i) mtr[0][i] = 2;
+    for (int i = 11; i < 14; ++i) mtr[0][i] = 2;
+    for (int i = 0; i < 14; ++i) mtr[1][i] = 2;
+    mtr[2][3]=2;
+    mtr[2][4]=2;
+    mtr[2][9]=2;
+    mtr[2][10]=2;
+    for (int i = 5; i < 10; ++i) mtr[9][i] = 1;
+    for (int i = 0; i < 14; ++i) mtr[10][i] = 1;
+    for (int i = 0; i < 5; ++i) mtr[11][i] = 1;
+    for (int i = 9; i < 14; ++i) mtr[11][i] = 1;
+}
+
+void printMap(vector < vector<int> > &mtr){
+    for (int i = 0; i < CPH; ++i) {
+        for (int j = 0; j < CPW; ++j) {
+            if(mtr[i][j]==0) cout << "  ";
+            if(mtr[i][j]==1) cout << "w ";
+            if(mtr[i][j]==2) cout << "b ";
+        }
+        cout << endl;
+    }
+}
+
 int main(){
+    vector < vector<int> > mtr(CPH,vector<int>(CPW,0));
 	for (int cnt = 0; cnt < CPH; cnt++)
 	{
 		strLiter[cnt] = 'l'-cnt;
@@ -20,6 +47,9 @@ int main(){
 	{
 		strLiter[cnt] = 'A'+cnt;
 	}
+    buildBaseMtr(mtr);
+    printMap(mtr);
+
 
 	return 0;
 }
