@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phalanx", "phalanx.vcxproj", "{F5989CAF-F407-467D-B5A7-C6A5201A94A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Debug|x64.ActiveCfg = Debug|x64
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Debug|x64.Build.0 = Debug|x64
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Debug|x86.ActiveCfg = Debug|Win32
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Debug|x86.Build.0 = Debug|Win32
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Release|x64.ActiveCfg = Release|x64
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Release|x64.Build.0 = Release|x64
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Release|x86.ActiveCfg = Release|Win32
+		{F5989CAF-F407-467D-B5A7-C6A5201A94A1}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97544FC4-76E9-4652-811A-EC5F43761A15}
+	EndGlobalSection
+EndGlobal
