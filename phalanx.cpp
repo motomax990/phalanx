@@ -4,6 +4,18 @@
 #include <vector>
 #include <algorithm>
 using namespace std;
+
+enum EDir{
+    UP,
+    DW ,
+    LF,
+    RT,
+    UPRT,
+    UPLT,
+    DWRT,
+    DWLT
+};
+
 //Размеры поля 12x14
 const int64_t CPH = 12;
 const int64_t CPW = 14;
@@ -36,6 +48,19 @@ void printMap(vector < vector<int> > &mtr){
         cout << endl;
     }
 }
+int checkWin(vector < vector<int> > &mtr){
+    if(count(mtr[0].begin(),mtr[0].end(),2)< count(mtr[0].begin(),mtr[0].end(),1))
+        return 1;
+    if(count(mtr[11].begin(),mtr[0].end(),1)< count(mtr[11].begin(),mtr[0].end(),2))
+        return 2;
+    return 0;
+}
+
+bool checkMoveAbility(vector < vector<int> > &mtr,int x1,int y1,int x2, int y2, int len){
+    if()
+    return false;
+}
+
 
 int main(){
     vector < vector<int> > mtr(CPH,vector<int>(CPW,0));
@@ -53,3 +78,8 @@ int main(){
 
 	return 0;
 }
+
+/*
+ *
+ *
+ */
