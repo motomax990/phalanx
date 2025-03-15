@@ -16,6 +16,18 @@ enum EDir{
     DWLT=7
 };
 
+struct STMove {
+    int bx1, bx2;
+    int by1, by2;
+    int ex, ey;
+    int len;
+    EDir dir;
+    STMove(int _bx1 =0 , int _bx2 = 0, int _by1 = 0, int _by2 = 0, int _ex = 0, int _ey = 0, EDir _dir = EDir(0), int _len = 0) : bx1(_bx1), bx2(_bx2), by1(_by1), by2(_by1), ex(_ex), ey(_ey),  dir(_dir), len(_len)
+    {
+    }
+};
+
+
 //Размеры поля 12x14
 const int64_t CPH = 12;
 const int64_t CPW = 14;
@@ -56,115 +68,115 @@ int checkWin(vector < vector<int> > &mtr){
     return 0;
 }
 
-bool checkMoveAbility(vector < vector<int> > &mtr,int crp, EDir dir, int bx1,int by1,int bx2, int by2, int e1, int e2, int len){
-    if (e1<0 or e2 <0 or e1 > CPH or e2 > CPW) return false;
-    if (dir == EDir::UP) {
-        if (bx1-e1 > len) return false;
-        for (size_t i = bx1-1; i > e1; i--)
+bool checkMoveAbility(vector < vector<int> > &mtr,int crp, STMove move){
+    if (move.ex<0 or move.ey <0 or move.ex > CPH or move.ey > CPW) return false;
+    if (move.dir == EDir::UP) {
+        if (move.bx1-move.ex > move.len) return false;
+        for (size_t i = move.bx1-1; i > move.ex; i--)
         {
-            if (mtr[i][e2] != 0) return false;
+            if (mtr[i][move.ey] != 0) return false;
         }
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int cr1 = e1;
+            int cr1 = move.ex;
             int crL = 0;
-            while (cr1 >= 0 and mtr[cr1][e2] == drp) { crL++; cr1--; }
-            if (crL > len) return false;
+            while (cr1 >= 0 and mtr[cr1][move.ey] == drp) { crL++; cr1--; }
+            if (crL > move.len) return false;
         }
         return true;
     }
-    else if (dir == EDir::DW) {
-        if (e1 - bx1 > len) return false;
-        for (size_t i = bx1+1; i < e1; i++)
+    else if (move.dir == EDir::DW) {
+        if (move.ex - move.bx1 > move.len) return false;
+        for (size_t i = move.bx1+1; i < move.ex; i++)
         {
-            if (mtr[i][e2] != 0) return false;
+            if (mtr[i][move.ey] != 0) return false;
         }
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int cr1 = e1;
+            int cr1 = move.ex;
             int crL = 0;
-            while (cr1 <= CPH and mtr[cr1][e2] == drp) {
+            while (cr1 <= CPH and mtr[cr1][move.ey] == drp) {
                 crL++; cr1++;
         }
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
     }
-    else if (dir == EDir::RT) {
-            if (e2 - by1 > len) return false;
-            for (size_t i = by1+1; i < e2; i++)
+    else if (move.dir == EDir::RT) {
+            if (move.ey - move.by1 > move.len) return false;
+            for (size_t i = move.by1+1; i < move.ey; i++)
             {
-                if (mtr[e1][i] != 0) return false;
+                if (mtr[move.ex][i] != 0) return false;
             }
-            if (mtr[e1][e2] == crp) return false;
-            else if (mtr[e1][e2] == 0) {
+            if (mtr[move.ex][move.ey] == crp) return false;
+            else if (mtr[move.ex][move.ey] == 0) {
                 return true;
             }
             else {
                 int drp = 3 - crp;
-                int cr2 = e2;
+                int cr2 = move.ey;
                 int crL = 0;
-                while (cr2 <= CPW and mtr[e1][cr2] == drp) {
+                while (cr2 <= CPW and mtr[move.ex][cr2] == drp) {
                     crL++; cr2++;
                 }
-                if (crL > len) return false;
+                if (crL > move.len) return false;
             }
             return true;
     }
-    else if (dir == EDir::LT) {
-        if (by1 - e2 > len) return false;
-        for (size_t i = by1-1; i > e2; i--)
+    else if (move.dir == EDir::LT) {
+        if (move.by1 - move.ey > move.len) return false;
+        for (size_t i = move.by1-1; i > move.ey; i--)
         {
-            if (mtr[e1][i] != 0) return false;
+            if (mtr[move.ex][i] != 0) return false;
         }
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int cr2 = e2;
+            int cr2 = move.ey;
             int crL = 0;
-            while (cr2 >= 0 and mtr[e1][cr2] == drp) {
+            while (cr2 >= 0 and mtr[move.ex][cr2] == drp) {
                 crL++; cr2--;
             }
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
     }
-    else if (dir == EDir::UPRT) {
+    else if (move.dir == EDir::UPRT) {
         int cnt = 0;
-        for (size_t i = bx1 - 1, j = by1 + 1; i > e1 and j < e2; i--, j++)
+        for (size_t i = move.bx1 - 1, j = move.by1 + 1; i > move.ex and j < move.ey; i--, j++)
         {
                 if (mtr[i][j] != 0) return false;
                 cnt++;
         }
-        if (cnt > len) return false;
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (cnt > move.len) return false;
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int crx1 = e1;
-            int cry1 = e2;
+            int crx1 = move.ex;
+            int cry1 = move.ey;
             int crL = 0;
             while (crx1 >= 0 and cry1 < CPW and mtr[crx1][cry1] == drp) { crL++; crx1--; cry1++;}
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
     }
-    else if (dir == EDir::UPLT) {
+    else if (move.dir == EDir::UPLT) {
         int cnt = 0;
-        for (size_t i = bx1 - 1, j = by1 - 1; i > e1 and j > e2; i--, j--)
+        for (size_t i = move.bx1 - 1, j = move.by1 - 1; i > move.ex and j > move.ey; i--, j--)
         {
             
                 if (mtr[i][j] != 0) return false;
@@ -172,24 +184,24 @@ bool checkMoveAbility(vector < vector<int> > &mtr,int crp, EDir dir, int bx1,int
 
             
         }
-        if (cnt > len) return false;
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (cnt > move.len) return false;
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int crx1 = e1;
-            int cry1 = e2;
+            int crx1 = move.ex;
+            int cry1 = move.ey;
             int crL = 0;
             while (crx1 >= 0 and cry1 >= 0 and mtr[crx1][cry1] == drp) { crL++; crx1--; cry1--; }
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
     }
-    else if (dir == EDir::DWRT) {
+    else if (move.dir == EDir::DWRT) {
         int cnt = 0;
-        for (size_t i = bx1 + 1, j = by1 + 1; i < e1 and j < e2; i++,j++)
+        for (size_t i = move.bx1 + 1, j = move.by1 + 1; i < move.ex and j < move.ey; i++,j++)
         {
             
                 if (mtr[i][j] != 0) return false;
@@ -197,47 +209,53 @@ bool checkMoveAbility(vector < vector<int> > &mtr,int crp, EDir dir, int bx1,int
 
             
         }
-        if (cnt > len) return false;
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (cnt > move.len) return false;
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int crx1 = e1;
-            int cry1 = e2;
+            int crx1 = move.ex;
+            int cry1 = move.ey;
             int crL = 0;
             while (crx1 < CPH and cry1 < CPW and mtr[crx1][cry1] == drp) { crL++; crx1++; cry1++; }
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
         
     }
-    else if (dir == EDir::DWLT) {
+    else if (move.dir == EDir::DWLT) {
         int cnt = 0;
-        for (size_t i = bx1 + 1, j = by1 - 1; i < e1 and  j > e2; i++, j--)
+        for (size_t i = move.bx1 + 1, j = move.by1 - 1; i < move.ex and  j > move.ey; i++, j--)
         {
                 if (mtr[i][j] != 0) return false;
                 cnt++;
 
         }
-        if (cnt > len) return false;
-        if (mtr[e1][e2] == crp) return false;
-        else if (mtr[e1][e2] == 0) {
+        if (cnt > move.len) return false;
+        if (mtr[move.ex][move.ey] == crp) return false;
+        else if (mtr[move.ex][move.ey] == 0) {
             return true;
         }
         else {
             int drp = 3 - crp;
-            int crx1 = e1;
-            int cry1 = e2;
+            int crx1 = move.ex;
+            int cry1 = move.ey;
             int crL = 0;
             while (crx1 < CPH and cry1 >= 0 and mtr[crx1][cry1] == drp) { crL++; crx1++; cry1--; }
-            if (crL > len) return false;
+            if (crL > move.len) return false;
         }
         return true;
     }
     return false;
 }
+
+
+STMove convFromStr(string move) {
+    return STMove();
+}
+
 
 
 int main(){
