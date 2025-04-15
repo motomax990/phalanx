@@ -538,6 +538,59 @@ string convToStr(STMove move) {
     else return string(gsc(move.bx1, move.by1) + "-"+ gsc(move.bx2, move.by2) + "-" + gsc(move.ex, move.ey));
 }
 
+
+
+void makeMove(vector < vector<int> >& mtr, STMove move) {
+    if (move.len == 1) {
+        int p = mtr[move.bx1][move.by1];
+        mtr[move.bx1][move.by1] = 0;
+        mtr[move.ex][move.ey] = p;
+    }
+    if (move.dir == EDir::UP) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.by1; i < move.by2; i++) mtr[move.bx1][i] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex][move.ey + i] = p;
+    }
+    else if (move.dir == EDir::DW) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.by2; i < move.by1; i++) mtr[move.bx1][i] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex][move.ey - i] = p;
+    }
+    else if (move.dir == EDir::RT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx1; i < move.bx2; i++) mtr[i][move.by1] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex+i][move.ey] = p;
+    }
+    else if (move.dir == EDir::LT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx2; i < move.bx1; i++) mtr[i][move.by1] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex-i][move.ey] = p;
+    }
+    else if (move.dir == EDir::UPRT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx1; i < move.bx2; i++) for (size_t j = move.by1; j < move.by2; j++) mtr[i][j] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex+i][move.ey + i] = p;
+    }
+    else if (move.dir == EDir::UPLT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx2; i < move.bx1; i++) for (size_t j = move.by1; j < move.by2; j++) mtr[i][j] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey + i] = p;
+    }
+    else if (move.dir == EDir::DWRT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx1; i < move.bx2; i++) for (size_t j = move.by2; j < move.by1; j++) mtr[i][j] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex + i][move.ey - i] = p;
+    }
+    else if (move.dir == EDir::DWLT) {
+        int p = mtr[move.bx1][move.by1];
+        for (size_t i = move.bx2; i < move.bx1; i++) for (size_t j = move.by2; j < move.by1; j++) mtr[i][j] = 0;
+        for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey - i] = p;
+    }
+}
+
+
+
+
 int main(){
     vector < vector<int> > mtr(CPH,vector<int>(CPW,0));
 	for (int cnt = 0; cnt < CPH; cnt++)
