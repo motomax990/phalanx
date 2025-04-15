@@ -287,6 +287,13 @@ pair<int, int> gcs(string st) {
     return res;
 }
 
+string gsc(int x, int y) {
+    string res = "";
+    res += colLiter[x];
+    res += strLiter[y];
+    return res;
+}
+
 
 STMove convFromStr(string moveSt) {
     if (moveSt.size() == 5) {
@@ -526,7 +533,10 @@ STMove convFromStr(string moveSt) {
     return STMove();
 }
 
-
+string convToStr(STMove move) {
+    if (move.len == 1) return string(gsc(move.bx1, move.by1) +"-"+ gsc(move.ex, move.ey));
+    else return string(gsc(move.bx1, move.by1) + "-"+ gsc(move.bx2, move.by2) + "-" + gsc(move.ex, move.ey));
+}
 
 int main(){
     vector < vector<int> > mtr(CPH,vector<int>(CPW,0));
