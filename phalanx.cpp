@@ -251,8 +251,278 @@ bool checkMoveAbility(vector < vector<int> > &mtr,int crp, STMove move){
     return false;
 }
 
+//Aa-Nl
+/*
+l
+k
+j
+i
+h
+g
+f
+e
+d
+c
+b
+a
+  A B C D E F G H I L K L M N
+*/
 
-STMove convFromStr(string move) {
+pair<int, int> gcs(string st) {
+    pair<int, int> res;
+    for (size_t i = 0; i< CPW; i++)
+    {
+        if (colLiter[i] == st[0]) {
+            res.first = i;
+            break;
+        }
+    }
+    for (size_t i = 0; i < CPH; i++)
+    {
+        if (colLiter[i] == st[1]) {
+            res.second = i;
+            break;
+        }
+    }
+    return res;
+}
+
+
+STMove convFromStr(string moveSt) {
+    if (moveSt.size() == 5) {
+        if (moveSt[0] != moveSt[3] and moveSt[1] != moveSt[4]) {
+            if (moveSt[0] < moveSt[3]) {
+                if (moveSt[1] > moveSt[4]) {
+                    STMove mv;
+                    mv.dir = EDir::UPRT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len = 1;
+                }
+                else {
+                    STMove mv;
+                    mv.dir = EDir::DWRT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len = 1;
+                }
+            }
+            else {
+                if (moveSt[1] > moveSt[4]) {
+                    STMove mv;
+                    mv.dir = EDir::UPLT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len = 1;
+                }
+                else {
+                    STMove mv;
+                    mv.dir = EDir::DWLT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len = 1;
+                }
+            }
+        }
+        else if (moveSt[0] == moveSt[3] and moveSt[1] != moveSt[4]) {
+            if (moveSt[1] > moveSt[4]) {
+                STMove mv;
+                mv.dir = EDir::UP;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr.first;
+                mv.by2 = cr.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = 1;
+            }
+            else {
+                STMove mv;
+                mv.dir = EDir::DW;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr.first;
+                mv.by2 = cr.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = 1;
+            }
+        }
+        else if (moveSt[0] != moveSt[3] and moveSt[1] == moveSt[4]) {
+            if (moveSt[0] < moveSt[3]) {
+                STMove mv;
+                mv.dir = EDir::RT;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr.first;
+                mv.by2 = cr.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = 1;
+            }
+            else {
+                STMove mv;
+                mv.dir = EDir::LT;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr.first;
+                mv.by2 = cr.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = 1;
+            }
+        }
+    }
+    else if(moveSt.size() == 8) {
+        if (moveSt[0] != moveSt[3] and moveSt[6] != moveSt[7]) {
+            if (moveSt[0] < moveSt[6]) {
+                if (moveSt[1] > moveSt[7]) {
+                    STMove mv;
+                    mv.dir = EDir::UPRT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len =  abs(cr.second - cr1.second) + 1;
+                    return mv;
+                }
+                else {
+                    STMove mv;
+                    mv.dir = EDir::DWRT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len =  abs(cr.second - cr1.second) + 1;
+                    return mv;
+                }
+            }
+            else {
+                if (moveSt[1] > moveSt[7]) {
+                    STMove mv;
+                    mv.dir = EDir::UPLT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len =  abs(cr.second - cr1.second) + 1;
+                    return mv;
+                }
+                else {
+                    STMove mv;
+                    mv.dir = EDir::DWLT;
+                    pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                    pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                    mv.bx1 = cr.first;
+                    mv.by1 = cr.second;
+                    mv.bx2 = cr.first;
+                    mv.by2 = cr.second;
+                    mv.ex = cr.first;
+                    mv.ey = cr.second;
+                    mv.len =  abs(cr.second - cr1.second) + 1;
+                    return mv;
+                }
+            }
+        }
+        else if (moveSt[0] == moveSt[6] and moveSt[1] != moveSt[7]) {
+            if (moveSt[1] > moveSt[7]) {
+                STMove mv;
+                mv.dir = EDir::UP;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr1.first;
+                mv.by2 = cr1.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = abs(cr.second - cr1.second)+1;
+                return mv;
+            }
+            else {
+                STMove mv;
+                mv.dir = EDir::DW;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr1.first;
+                mv.by2 = cr1.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = abs(cr.second - cr1.second)+1;
+                return mv;
+            }
+        }
+        else if (moveSt[0] != moveSt[6] and moveSt[1] == moveSt[7]) {
+            if (moveSt[0] < moveSt[6]) {
+                STMove mv;
+                mv.dir = EDir::RT;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr1.first;
+                mv.by2 = cr1.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = abs(cr.first - cr1.first)+1;
+                return mv;
+            }
+            else {
+                STMove mv;
+                mv.dir = EDir::LT;
+                pair<int, int> cr = gcs(moveSt.substr(0, 2));
+                pair<int, int> cr1 = gcs(moveSt.substr(3, 2));
+                mv.bx1 = cr.first;
+                mv.by1 = cr.second;
+                mv.bx2 = cr1.first;
+                mv.by2 = cr1.second;
+                mv.ex = cr.first;
+                mv.ey = cr.second;
+                mv.len = abs(cr.first- cr1.first)+1;
+                return mv;
+            }
+        }
+    }
+
+
     return STMove();
 }
 
