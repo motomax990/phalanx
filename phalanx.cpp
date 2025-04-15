@@ -16,6 +16,8 @@ enum EDir {
 	DWLT = 7
 };
 
+pair<int, int> dirs[8]{ {1,0},{-1,0},{0,-1},{0,1},{1,1},{1,-1},{-1,1},{-1,-1}};
+
 struct STMove {
 	int bx1, bx2;
 	int by1, by2;
@@ -656,6 +658,10 @@ void makeMove(vector < vector<int> >& mtr, STMove move) {
 		for (size_t i = move.by2; i < move.by1; i++) for (size_t j = move.bx2; j < move.bx1; j++) mtr[i][j] = 0;
 		for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey + i] = p;
 	}
+}
+
+void gemAllMoves(vector < vector<int> >& mtr, vector < vector<STMove> >& mvs, int crp) {
+
 }
 
 void genMove(vector < vector<int> >& mtr, int crp) {
