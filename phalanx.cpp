@@ -74,7 +74,14 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	if (move.ex<0 or move.ey <0 or move.ex > CPH or move.ey > CPW) return false;
 	if (move.dir == EDir::UP) {
 		if (move.bx1 - move.ex > move.len) return false;
-		for (size_t i = move.bx1 - 1; i > move.ex; i--)
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 + i][move.by1] != crp) return false;
+			cnt1++;
+		}
+		if (cnt1 != move.len) return false;
+		for (size_t i = move.bx1 - 1; i >= move.ex; i--)
 		{
 			if (mtr[i][move.ey] != 0) return false;
 		}
@@ -93,6 +100,13 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::DW) {
 		if (move.ex - move.bx1 > move.len) return false;
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1-i][move.by1 ] != crp) return false;
+			cnt1++;
+		}
+		if (cnt1 != move.len) return false;
 		for (size_t i = move.bx1 + 1; i < move.ex; i++)
 		{
 			if (mtr[i][move.ey] != 0) return false;
@@ -114,7 +128,14 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::RT) {
 		if (move.ey - move.by1 > move.len) return false;
-		for (size_t i = move.by1 + 1; i < move.ey; i++)
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1][move.by1 - i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt1 != move.len) return false;
+		for (size_t i = move.by1 + 1; i <= move.ey; i++)
 		{
 			if (mtr[move.ex][i] != 0) return false;
 		}
@@ -135,7 +156,14 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::LT) {
 		if (move.by1 - move.ey > move.len) return false;
-		for (size_t i = move.by1 - 1; i > move.ey; i--)
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 ][move.by1 + i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt1 != move.len) return false;
+		for (size_t i = move.by1 - 1; i >= move.ey; i--)
 		{
 			if (mtr[move.ex][i] != 0) return false;
 		}
@@ -161,7 +189,13 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 			if (mtr[i][j] != 0) return false;
 			cnt++;
 		}
-		if (cnt > move.len) return false;
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 + i][move.by1 - i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
 		if (mtr[move.ex][move.ey] == crp) return false;
 		else if (mtr[move.ex][move.ey] == 0) {
 			return true;
@@ -178,7 +212,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::UPLT) {
 		int cnt = 0;
-		for (size_t i = move.bx1 - 1, j = move.by1 - 1; i > move.ex and j > move.ey; i--, j--)
+		for (size_t i = move.bx1 - 1, j = move.by1 - 1; i >= move.ex and j >= move.ey; i--, j--)
 		{
 
 			if (mtr[i][j] != 0) return false;
@@ -186,7 +220,13 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 
 
 		}
-		if (cnt > move.len) return false;
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 + i][move.by1 + i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
 		if (mtr[move.ex][move.ey] == crp) return false;
 		else if (mtr[move.ex][move.ey] == 0) {
 			return true;
@@ -203,7 +243,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::DWRT) {
 		int cnt = 0;
-		for (size_t i = move.bx1 + 1, j = move.by1 + 1; i < move.ex and j < move.ey; i++, j++)
+		for (size_t i = move.bx1 + 1, j = move.by1 + 1; i <= move.ex and j <= move.ey; i++, j++)
 		{
 
 			if (mtr[i][j] != 0) return false;
@@ -211,7 +251,13 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 
 
 		}
-		if (cnt > move.len) return false;
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 - i][move.by1 - i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
 		if (mtr[move.ex][move.ey] == crp) return false;
 		else if (mtr[move.ex][move.ey] == 0) {
 			return true;
@@ -229,13 +275,19 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 	}
 	else if (move.dir == EDir::DWLT) {
 		int cnt = 0;
-		for (size_t i = move.bx1 + 1, j = move.by1 - 1; i < move.ex and j > move.ey; i++, j--)
+		for (size_t i = move.bx1 + 1, j = move.by1 - 1; i <= move.ex and j >= move.ey; i++, j--)
 		{
 			if (mtr[i][j] != 0) return false;
 			cnt++;
 
 		}
-		if (cnt > move.len) return false;
+		int64_t cnt1 = 0;
+		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		{
+			if (mtr[move.bx1 - i][move.by1 + i] != crp) return false;
+			cnt1++;
+		}
+		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
 		if (mtr[move.ex][move.ey] == crp) return false;
 		else if (mtr[move.ex][move.ey] == 0) {
 			return true;
@@ -683,10 +735,13 @@ int main() {
 		cout << colLiter[cnt] << " ";
 	}
 	cout << endl;
-	STMove mv = convFromStr("Bk-Cl-Aj");
-	cout << convToStr(mv) << endl;
 	buildBaseMtr(mtr);
 	printMap(mtr);
+	STMove mv = convFromStr("Bk-Bl-Bj");
+	int crp = 2;
+	cout << boolalpha << checkMoveAbility(mtr,crp,mv) << endl;
+	cout << convToStr(mv) << endl;
+	
 
 
 	return 0;
