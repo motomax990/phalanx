@@ -71,11 +71,11 @@ int checkWin(vector < vector<int> >& mtr) {
 }
 
 bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
-	if (move.ex<0 or move.ey <0 or move.ex > CPH or move.ey > CPW) return false;
+	if (move.ex<0 or move.ey <0 or move.ex >= CPH or move.ey >= CPW) return false;
 	if (move.dir == EDir::UP) {
-		if (move.bx1 - move.ex > move.len) return false;
+		if (move.bx1 - move.ex+1 > move.len) return false;
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 + i][move.by1] != crp) return false;
 			cnt1++;
@@ -99,9 +99,9 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 		return true;
 	}
 	else if (move.dir == EDir::DW) {
-		if (move.ex - move.bx1 > move.len) return false;
+		if (move.ex - move.bx1+1 > move.len) return false;
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1-i][move.by1 ] != crp) return false;
 			cnt1++;
@@ -127,9 +127,9 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 		return true;
 	}
 	else if (move.dir == EDir::RT) {
-		if (move.ey - move.by1 > move.len) return false;
+		if (move.ey - move.by1+1 > move.len) return false;
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1][move.by1 - i] != crp) return false;
 			cnt1++;
@@ -155,9 +155,9 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 		return true;
 	}
 	else if (move.dir == EDir::LT) {
-		if (move.by1 - move.ey > move.len) return false;
+		if (move.by1 - move.ey+1 > move.len) return false;
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 ][move.by1 + i] != crp) return false;
 			cnt1++;
@@ -190,7 +190,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 			cnt++;
 		}
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 + i][move.by1 - i] != crp) return false;
 			cnt1++;
@@ -221,7 +221,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 
 		}
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 + i][move.by1 + i] != crp) return false;
 			cnt1++;
@@ -252,7 +252,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 
 		}
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 - i][move.by1 - i] != crp) return false;
 			cnt1++;
@@ -282,7 +282,7 @@ bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
 
 		}
 		int64_t cnt1 = 0;
-		for (size_t i = 0; i < move.ex - move.bx1; i++)
+		for (size_t i = 0; i <= move.ex - move.bx1; i++)
 		{
 			if (mtr[move.bx1 - i][move.by1 + i] != crp) return false;
 			cnt1++;
@@ -711,9 +711,53 @@ void makeMove(vector < vector<int> >& mtr, STMove move) {
 		for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey + i] = p;
 	}
 }
+/*
+enum EDir {
+	UP = 0,
+	DW = 1,
+	LT = 2,
+	RT = 3,
+	UPRT = 4,
+	UPLT = 5,
+	DWRT = 6,
+	DWLT = 7
+};
+pair<int, int> dirs[8]{ {1,0},{-1,0},{0,-1},{0,1},{1,1},{1,-1},{-1,1},{-1,-1}};
+*/
+void gemAllMoves(vector < vector<int> >& mtr, vector<STMove> & mvs, int crp) {
+	for (int i = 0; i < CPH; i++)
+	{
+		for (size_t j = 0; j < CPW; j++)
+		{
+			if (mtr[i][j] == crp) {
+				for (int k = 0; k < 8; k++) {
+					for (int p = 1; p < 14; p++) {
+						int ni1 = i + (-dirs[k].first) * p, nj1 = j + (-dirs[k].second) * p;
+						if (mtr[ni1][nj1] != crp) break;
+						for (size_t l = 1; l <= p; l++)
+						{
+							int ni = i + dirs[k].first * l, nj = j + dirs[k].second * l;
+							if ( ni < 0 or ni1<0 or nj < 0 or nj1 < 0 or ni >= CPH or ni1 >= CPH or nj >= CPW or nj1 >= CPW ) break;
+							STMove mv;
+							mv.bx1 = i;
+							mv.by1 = j;
+							mv.bx2 = ni;
+							mv.by2 = nj;
+							mv.ex = ni;
+							mv.ey = nj;
+							mv.len = p;
+							if (checkMoveAbility(mtr, crp, mv)) {
+								mvs.emplace_back(mv);
+							}
+							else break;
+						}
 
-void gemAllMoves(vector < vector<int> >& mtr, vector < vector<STMove> >& mvs, int crp) {
-
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 void genMove(vector < vector<int> >& mtr, int crp) {
