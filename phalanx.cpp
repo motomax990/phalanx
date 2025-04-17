@@ -3,7 +3,14 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
+#include <random>
+#include <cstdio>
+#include <climits>
+
 using namespace std;
+
+ofstream out("output.txt");
 
 enum EDir {
 	UP = 0,
@@ -16,7 +23,7 @@ enum EDir {
 	DWLT = 7
 };
 
-pair<int, int> dirs[8]{ {1,0},{-1,0},{0,-1},{0,1},{1,1},{1,-1},{-1,1},{-1,-1}};
+pair<int, int> dirs[8]{ {1,0},{-1,0},{0,-1},{0,1},{1,1},{1,-1},{-1,1},{-1,-1} };
 
 struct STMove {
 	int bx1, bx2;
@@ -30,13 +37,14 @@ struct STMove {
 };
 
 
-//Размеры поля 12x14
 const int64_t CPH = 12;
 const int64_t CPW = 14;
-//Удобный перевод координат для вывода
+
 char strLiter[CPH];
 char colLiter[CPW];
+unordered_map<uint64_t, int> evaluationCache;
 
+vector<vector<vector<uint64_t>>> zobristTable(CPH, vector<vector<uint64_t>>(CPW, vector<uint64_t>(3)));
 void buildBaseMtr(vector < vector<int> >& mtr) {
 	for (int i = 0; i < 3; ++i) mtr[0][i] = 2;
 	for (int i = 5; i < 9; ++i) mtr[0][i] = 2;
@@ -55,11 +63,11 @@ void buildBaseMtr(vector < vector<int> >& mtr) {
 void printMap(vector < vector<int> >& mtr) {
 	for (int i = 0; i < CPH; ++i) {
 		for (int j = 0; j < CPW; ++j) {
-			if (mtr[i][j] == 0) cout << "#";
-			if (mtr[i][j] == 1) cout << "w";
-			if (mtr[i][j] == 2) cout << "b";
+			if (mtr[i][j] == 0) out << "#";
+			if (mtr[i][j] == 1) out << "w";
+			if (mtr[i][j] == 2) out << "b";
 		}
-		cout << endl;
+		out << endl;
 	}
 }
 int checkWin(vector < vector<int> >& mtr) {
@@ -69,258 +77,6 @@ int checkWin(vector < vector<int> >& mtr) {
 		return 2;
 	return 0;
 }
-
-bool checkMoveAbility(vector < vector<int> >& mtr, int crp, STMove move) {
-	if (move.ex<0 or move.ey <0 or move.ex >= CPH or move.ey >= CPW) return false;
-	if (move.dir == EDir::UP) {
-		if (move.bx1 - move.ex+1 > move.len) return false;
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 + i][move.by1] != crp) return false;
-			cnt1++;
-		}
-		if (cnt1 != move.len) return false;
-		for (size_t i = move.bx1 - 1; i >= move.ex; i--)
-		{
-			if (mtr[i][move.ey] != 0) return false;
-		}
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int cr1 = move.ex;
-			int crL = 0;
-			while (cr1 >= 0 and mtr[cr1][move.ey] == drp) { crL++; cr1--; }
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::DW) {
-		if (move.ex - move.bx1+1 > move.len) return false;
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1-i][move.by1 ] != crp) return false;
-			cnt1++;
-		}
-		if (cnt1 != move.len) return false;
-		for (size_t i = move.bx1 + 1; i < move.ex; i++)
-		{
-			if (mtr[i][move.ey] != 0) return false;
-		}
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int cr1 = move.ex;
-			int crL = 0;
-			while (cr1 <= CPH and mtr[cr1][move.ey] == drp) {
-				crL++; cr1++;
-			}
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::RT) {
-		if (move.ey - move.by1+1 > move.len) return false;
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1][move.by1 - i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt1 != move.len) return false;
-		for (size_t i = move.by1 + 1; i <= move.ey; i++)
-		{
-			if (mtr[move.ex][i] != 0) return false;
-		}
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int cr2 = move.ey;
-			int crL = 0;
-			while (cr2 <= CPW and mtr[move.ex][cr2] == drp) {
-				crL++; cr2++;
-			}
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::LT) {
-		if (move.by1 - move.ey+1 > move.len) return false;
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 ][move.by1 + i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt1 != move.len) return false;
-		for (size_t i = move.by1 - 1; i >= move.ey; i--)
-		{
-			if (mtr[move.ex][i] != 0) return false;
-		}
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int cr2 = move.ey;
-			int crL = 0;
-			while (cr2 >= 0 and mtr[move.ex][cr2] == drp) {
-				crL++; cr2--;
-			}
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::UPRT) {
-		int cnt = 0;
-		for (size_t i = move.bx1 - 1, j = move.by1 + 1; i > move.ex and j < move.ey; i--, j++)
-		{
-			if (mtr[i][j] != 0) return false;
-			cnt++;
-		}
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 + i][move.by1 - i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int crx1 = move.ex;
-			int cry1 = move.ey;
-			int crL = 0;
-			while (crx1 >= 0 and cry1 < CPW and mtr[crx1][cry1] == drp) { crL++; crx1--; cry1++; }
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::UPLT) {
-		int cnt = 0;
-		for (size_t i = move.bx1 - 1, j = move.by1 - 1; i >= move.ex and j >= move.ey; i--, j--)
-		{
-
-			if (mtr[i][j] != 0) return false;
-			cnt++;
-
-
-		}
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 + i][move.by1 + i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int crx1 = move.ex;
-			int cry1 = move.ey;
-			int crL = 0;
-			while (crx1 >= 0 and cry1 >= 0 and mtr[crx1][cry1] == drp) { crL++; crx1--; cry1--; }
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	else if (move.dir == EDir::DWRT) {
-		int cnt = 0;
-		for (size_t i = move.bx1 + 1, j = move.by1 + 1; i <= move.ex and j <= move.ey; i++, j++)
-		{
-
-			if (mtr[i][j] != 0) return false;
-			cnt++;
-
-
-		}
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 - i][move.by1 - i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int crx1 = move.ex;
-			int cry1 = move.ey;
-			int crL = 0;
-			while (crx1 < CPH and cry1 < CPW and mtr[crx1][cry1] == drp) { crL++; crx1++; cry1++; }
-			if (crL > move.len) return false;
-		}
-		return true;
-
-	}
-	else if (move.dir == EDir::DWLT) {
-		int cnt = 0;
-		for (size_t i = move.bx1 + 1, j = move.by1 - 1; i <= move.ex and j >= move.ey; i++, j--)
-		{
-			if (mtr[i][j] != 0) return false;
-			cnt++;
-
-		}
-		int64_t cnt1 = 0;
-		for (size_t i = 0; i <= move.ex - move.bx1; i++)
-		{
-			if (mtr[move.bx1 - i][move.by1 + i] != crp) return false;
-			cnt1++;
-		}
-		if (cnt > move.len or cnt == 0 or cnt1 != move.len) return false;
-		if (mtr[move.ex][move.ey] == crp) return false;
-		else if (mtr[move.ex][move.ey] == 0) {
-			return true;
-		}
-		else {
-			int drp = 3 - crp;
-			int crx1 = move.ex;
-			int cry1 = move.ey;
-			int crL = 0;
-			while (crx1 < CPH and cry1 >= 0 and mtr[crx1][cry1] == drp) { crL++; crx1++; cry1--; }
-			if (crL > move.len) return false;
-		}
-		return true;
-	}
-	return false;
-}
-
-/*
-Aa - Nl
-l
-k
-j
-i
-h
-g
-f
-e
-d
-c
-b
-a
-  A B C D E F G H I L K L M N
-*/
 
 pair<int, int> gcs(string st) {
 	pair<int, int> res;
@@ -664,92 +420,153 @@ string convToStr(STMove move) {
 	else return string(gsc(move.bx1, move.by1) + "-" + gsc(move.bx2, move.by2) + "-" + gsc(move.ex, move.ey));
 }
 
-void makeMove(vector < vector<int> >& mtr, STMove move) {
+bool checkMoveAbility(vector<vector<int>>& mtr, int crp, STMove move) {
+	if (move.ex < 0 || move.ey < 0 || move.ex >= CPH || move.ey >= CPW)
+		return false;
+
+	int dx = 0, dy = 0;
+	switch (move.dir) {
+	case EDir::UP:    dx = -1; break;
+	case EDir::DW:    dx = 1;  break;
+	case EDir::LT:    dy = -1; break;
+	case EDir::RT:    dy = 1;  break;
+	case EDir::UPRT:  dx = -1; dy = 1; break;
+	case EDir::UPLT:  dx = -1; dy = -1; break;
+	case EDir::DWRT:  dx = 1; dy = 1; break;
+	case EDir::DWLT:  dx = 1; dy = -1; break;
+	}
+
+	for (int i = 0; i < move.len; ++i) {
+		int x = move.bx1 + i * dx;
+		int y = move.by1 + i * dy;
+		if (x < 0 || y < 0 || x >= CPH || y >= CPW || mtr[x][y] != crp)
+			return false;
+	}
+
+	int dist = (dx && dy) ? abs(move.ex - move.bx1) :
+		max(abs(move.ex - move.bx1), abs(move.ey - move.by1));
+
+	for (int i = 1; i <= dist; ++i) {
+		int x = move.bx1 + i * dx;
+		int y = move.by1 + i * dy;
+		if (x < 0 || y < 0 || x >= CPH || y >= CPW || mtr[x][y] != 0)
+			return false;
+	}
+
+	if (mtr[move.ex][move.ey] == crp)
+		return false;
+	if (mtr[move.ex][move.ey] == 3 - crp) {
+		int enemyLen = 0;
+		int cx = move.ex;
+		int cy = move.ey;
+
+		// Считаем ВСЕХ врагов в линии атаки
+		while (true) {
+			if (cx < 0 || cy < 0 || cx >= CPH || cy >= CPW) break;
+			if (mtr[cx][cy] != 3 - crp) break;
+			enemyLen++;
+			cx += dx;
+			cy += dy;
+		}
+
+		cx = move.ex - dx;
+		cy = move.ey - dy;
+		while (true) {
+			if (cx < 0 || cy < 0 || cx >= CPH || cy >= CPW) break;
+			if (mtr[cx][cy] != 3 - crp) break;
+			enemyLen++;
+			cx -= dx;
+			cy -= dy;
+		}
+
+		// Решающее условие: длина атакующей > защищающейся
+		if (move.len <= enemyLen) {
+			return false; // Захват невозможен
+		}
+	}
+
+	return true;
+}
+void makeMove(vector<vector<int>>& mtr, const STMove& move) {
 	if (move.len == 1) {
 		int p = mtr[move.bx1][move.by1];
 		mtr[move.bx1][move.by1] = 0;
 		mtr[move.ex][move.ey] = p;
+		return;
 	}
-	if (move.dir == EDir::UP) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.bx1; i < move.bx2; i++) mtr[i][move.by1] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex+i][move.ey] = p;
+
+	const int dx = (move.ex != move.bx1) ? (move.ex > move.bx1 ? 1 : -1) : 0;
+	const int dy = (move.ey != move.by1) ? (move.ey > move.by1 ? 1 : -1) : 0;
+
+	for (int i = 0; i < move.len; ++i) {
+		int x = move.bx1 + i * dx;
+		int y = move.by1 + i * dy;
+		if (x >= 0 && y >= 0 && x < CPH && y < CPW) {
+			mtr[x][y] = 0;
+		}
 	}
-	else if (move.dir == EDir::DW) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.bx2; i < move.bx1; i++) mtr[i][move.by1] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey] = p;
+
+	for (int i = 0; i < move.len; ++i) {
+		int x = move.ex - i * dx;
+		int y = move.ey - i * dy;
+		if (x >= 0 && y >= 0 && x < CPH && y < CPW) {
+			mtr[x][y] = mtr[move.bx1][move.by1];
+		}
 	}
-	else if (move.dir == EDir::RT) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by1; i < move.by2; i++) mtr[move.bx1][i] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex ][move.ey - i] = p;
+
+	int cx = move.ex + dx;
+	int cy = move.ey + dy;
+	while (cx >= 0 && cy >= 0 && cx < CPH && cy < CPW && mtr[cx][cy] == 3 - mtr[move.bx1][move.by1]) {
+		mtr[cx][cy] = 0;
+		cx += dx;
+		cy += dy;
 	}
-	else if (move.dir == EDir::LT) {
+	if (mtr[move.ex][move.ey] == 3 - mtr[move.bx1][move.by1]) {
 		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by2; i < move.by1; i++) mtr[move.bx1][i] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex][move.ey+1] = p;
-	}
-	else if (move.dir == EDir::UPRT) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by1; i < move.by2; i++) for (size_t j = move.bx1; j < move.bx2; j++) mtr[i][j] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex + i][move.ey - i] = p;
-	}
-	else if (move.dir == EDir::UPLT) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by2; i < move.by1; i++) for (size_t j = move.bx1; j < move.bx2; j++) mtr[i][j] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey + i] = p;
-	}
-	else if (move.dir == EDir::DWRT) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by1; i < move.by2; i++) for (size_t j = move.bx2; j < move.bx1; j++) mtr[i][j] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex + i][move.ey - i] = p;
-	}
-	else if (move.dir == EDir::DWLT) {
-		int p = mtr[move.bx1][move.by1];
-		for (size_t i = move.by2; i < move.by1; i++) for (size_t j = move.bx2; j < move.bx1; j++) mtr[i][j] = 0;
-		for (size_t i = 0; i < move.len; i++) mtr[move.ex - i][move.ey + i] = p;
+		int dx = (move.ex != move.bx1) ? (move.ex > move.bx1 ? 1 : -1) : 0;
+		int dy = (move.ey != move.by1) ? (move.ey > move.by1 ? 1 : -1) : 0;
+
+		// Удаляем ровно move.len вражеских шашек
+		int captured = 0;
+		int cx = move.ex;
+		int cy = move.ey;
+
+		while (captured < move.len &&
+			cx >= 0 && cy >= 0 && cx < CPH && cy < CPW) {
+			if (mtr[cx][cy] == 3 - p) {
+				mtr[cx][cy] = 0;
+				captured++;
+			}
+			cx += dx;
+			cy += dy;
+		}
 	}
 }
-/*
-enum EDir {
-	UP = 0,
-	DW = 1,
-	LT = 2,
-	RT = 3,
-	UPRT = 4,
-	UPLT = 5,
-	DWRT = 6,
-	DWLT = 7
-};
-pair<int, int> dirs[8]{ {1,0},{-1,0},{0,-1},{0,1},{1,1},{1,-1},{-1,1},{-1,-1}};
-*/
-void gemAllMoves(vector < vector<int> >& mtr, vector<STMove> & mvs, int crp) {
+
+void gemAllMoves(vector < vector<int> >& mtr, vector<STMove>& mvs, int crp) {
 	for (int i = 0; i < CPH; i++)
 	{
 		for (size_t j = 0; j < CPW; j++)
 		{
 			if (mtr[i][j] == crp) {
 				for (int k = 0; k < 8; k++) {
-					for (int p = 1; p < 14; p++) {
+					for (int p = 0; p < 14; p++) {
 						int ni1 = i + (-dirs[k].first) * p, nj1 = j + (-dirs[k].second) * p;
-						if (mtr[ni1][nj1] != crp) break;
-						for (size_t l = 1; l <= p; l++)
-						{
-							int ni = i + dirs[k].first * l, nj = j + dirs[k].second * l;
-							if ( ni < 0 or ni1<0 or nj < 0 or nj1 < 0 or ni >= CPH or ni1 >= CPH or nj >= CPW or nj1 >= CPW ) break;
-							STMove mv;
-							mv.bx1 = i;
-							mv.by1 = j;
-							mv.bx2 = ni;
-							mv.by2 = nj;
-							mv.ex = ni;
-							mv.ey = nj;
-							mv.len = p;
-							if (checkMoveAbility(mtr, crp, mv)) {
-								mvs.emplace_back(mv);
-							}
-							else break;
+						if (ni1 < 0 or nj1 < 0 or ni1 >= CPH or nj1 >= CPW) continue;
+						if (mtr[ni1][nj1] != crp) continue;
+						int ni = i + dirs[k].first * (p + 1), nj = j + dirs[k].second * (1 + p);
+						if (ni < 0 or ni1 < 0 or nj < 0 or nj1 < 0 or ni >= CPH or ni1 >= CPH or nj >= CPW or nj1 >= CPW) continue;
+						STMove mv;
+						mv.bx1 = i;
+						mv.by1 = j;
+						mv.bx2 = ni1;
+						mv.by2 = nj1;
+						mv.ex = ni;
+						mv.ey = nj;
+						mv.len = p + 1;
+						mv.dir = EDir(k);
+						if (checkMoveAbility(mtr, crp, mv)) {
+							mvs.emplace_back(mv);
 						}
 
 					}
@@ -757,35 +574,128 @@ void gemAllMoves(vector < vector<int> >& mtr, vector<STMove> & mvs, int crp) {
 			}
 		}
 	}
-	
+
 }
 
-void genMove(vector < vector<int> >& mtr, int crp) {
-	
+int evaluatePosition(const vector<vector<int>>& mtr, int crp) {
+	const int targetRow = crp == 1 ? 0 : CPH - 1;
+	int score = 0;
+	int frontLine[CPW] = { 0 };
+
+	for (int i = 0; i < CPH; ++i) {
+		for (int j = 0; j < CPW; ++j) {
+			if (mtr[i][j] == crp) {
+				int dist = abs(i - targetRow);
+				score += (CPH - dist) * 100;
+
+				if (j >= 4 && j < 10) score += 30;
+
+				if (dist < 3) frontLine[j]++;
+			}
+		}
+	}
+
+	int maxConcentration = 0;
+	for (int j = 0; j < CPW; ++j) {
+		if (frontLine[j] > 2) score += 50;
+		maxConcentration = max(maxConcentration, frontLine[j]);
+	}
+	score += maxConcentration * 40;
+
+	return score;
 }
 
+STMove findOptimalMove(vector<vector<int>>& mtr, int crp) {
+	vector<STMove> moves;
+	gemAllMoves(mtr, moves, crp);
+
+	if (moves.empty()) return STMove();
+
+	sort(moves.begin(), moves.end(), [crp](const STMove& a, const STMove& b) {
+		int aProgress = crp == 1 ? (a.bx1 - a.ex) : (a.ex - a.bx1);
+		int bProgress = crp == 1 ? (b.bx1 - b.ex) : (b.ex - b.bx1);
+		return aProgress > bProgress;
+		});
+
+	const int maxMoves = min(5, (int)moves.size());
+	int bestScore = -INT_MAX;
+	STMove bestMove = moves[0];
+
+	for (int i = 0; i < maxMoves; ++i) {
+		auto& move = moves[i];
+		vector<vector<int>> newMtr = mtr;
+		if (checkMoveAbility(newMtr, crp, move))
+			makeMove(newMtr, move);
+		else continue;
+
+		int currentScore = evaluatePosition(newMtr, crp);
+
+		vector<STMove> enemyMoves;
+		gemAllMoves(newMtr, enemyMoves, 3 - crp);
+		if (!enemyMoves.empty()) {
+			int worstEnemyScore = INT_MAX;
+			for (auto& eMove : enemyMoves) {
+				vector<vector<int>> temp = newMtr;
+				if (checkMoveAbility(newMtr, 3 - crp, eMove))
+					makeMove(temp, eMove);
+				else continue;
+				worstEnemyScore = min(worstEnemyScore, evaluatePosition(temp, crp));
+			}
+			currentScore = 0.6 * currentScore + 0.4 * worstEnemyScore;
+		}
+
+		if (currentScore > bestScore) {
+			bestScore = currentScore;
+			bestMove = move;
+		}
+	}
+
+	return bestMove;
+}
 
 int main() {
-	vector < vector<int> > mtr(CPH, vector<int>(CPW, 0));
+	std::ios::sync_with_stdio(true);
+
+	int nn;
+	cin >> nn;
 	for (int cnt = 0; cnt < CPH; cnt++)
 	{
 		strLiter[cnt] = 'l' - cnt;
-		cout << strLiter[cnt] << " ";
 	}
-	cout << endl;
 	for (int cnt = 0; cnt < CPW; cnt++)
 	{
 		colLiter[cnt] = 'A' + cnt;
-		cout << colLiter[cnt] << " ";
 	}
-	cout << endl;
+	vector < vector<int> > mtr(CPH, vector<int>(CPW, 0));
 	buildBaseMtr(mtr);
-	printMap(mtr);
-	STMove mv = convFromStr("Bk-Bl-Bj");
-	int crp = 2;
-	cout << boolalpha << checkMoveAbility(mtr,crp,mv) << endl;
-	cout << convToStr(mv) << endl;
-	
+	int crp;
+	cin >> crp;
+	crp++;
+	string mvS;
+	bool f = true;
+	if (crp == 2) {
+		if (f) {
+			cin.ignore();
+			f = false;
+		}
+		getline(cin, mvS);
+		makeMove(mtr, convFromStr(mvS));
+	}
+	for (size_t i = 0; i < nn; i++)
+	{
+		STMove mv = findOptimalMove(mtr, crp);
+		makeMove(mtr, mv);
+		cout << convToStr(mv) << endl;
+		if (f) {
+			cin.ignore(); f = false;
+		}
+		printMap(mtr);
+		out << endl;
+		getline(cin, mvS);
+		makeMove(mtr, convFromStr(mvS));
+		printMap(mtr);
+		out << endl;
+	}
 
 
 	return 0;
