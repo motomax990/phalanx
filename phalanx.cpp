@@ -54,7 +54,7 @@ void buildBaseMtr(vector < vector<int> >& mtr) {
 	mtr[2][4] = 2;
 	mtr[2][9] = 2;
 	mtr[2][10] = 2;
-	for (int i = 5; i < 10; ++i) mtr[9][i] = 1;
+	for (int i = 5; i < 9; ++i) mtr[9][i] = 1;
 	for (int i = 0; i < 14; ++i) mtr[10][i] = 1;
 	for (int i = 0; i < 5; ++i) mtr[11][i] = 1;
 	for (int i = 9; i < 14; ++i) mtr[11][i] = 1;
@@ -69,6 +69,8 @@ void printMap(vector < vector<int> >& mtr) {
 		}
 		out << endl;
 	}
+    out << endl;
+    out << endl;
 }
 int checkWin(vector < vector<int> >& mtr) {
 	if (count(mtr[0].begin(), mtr[0].end(), 2) < count(mtr[0].begin(), mtr[0].end(), 1))
@@ -681,7 +683,8 @@ int main() {
 		getline(cin, mvS);
 		makeMove(mtr, convFromStr(mvS));
 	}
-	for (size_t i = 0; i < nn; i++)
+
+	 for (size_t i = 0; i < nn; i++)
 	{
 		STMove mv = findOptimalMove(mtr, crp);
 		makeMove(mtr, mv);
@@ -696,7 +699,6 @@ int main() {
 		printMap(mtr);
 		out << endl;
 	}
-
 
 	return 0;
 }
