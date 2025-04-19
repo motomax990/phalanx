@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -33,7 +33,7 @@ const int64_t CPW = 14;
 char strLiter[CPH];
 char colLiter[CPW];
 const int SEARCH_DEPTH = 2;
-ofstream out("output.txt");
+//ofstream out("output.txt");
 
 vector<vector<vector<uint64_t>>> zobristTable(CPH, vector<vector<uint64_t>>(CPW, vector<uint64_t>(3)));
 void buildBaseMtr(vector < vector<int> >& mtr) {
@@ -51,22 +51,11 @@ void buildBaseMtr(vector < vector<int> >& mtr) {
 	for (int i = 9; i < 14; ++i) mtr[11][i] = 1;
 }
 
-void printMap(vector < vector<int> >& mtr) {
-	for (int i = 0; i < CPH; ++i) {
-		for (int j = 0; j < CPW; ++j) {
-			if (mtr[i][j] == 0) out << "#";
-			if (mtr[i][j] == 1) out << "w";
-			if (mtr[i][j] == 2) out << "b";
-		}
-		out << endl;
-	}
-    out << endl;
-    out << endl;
-}
+
 int checkWin(vector < vector<int> >& mtr) {
 	if (count(mtr[0].begin(), mtr[0].end(), 2) < count(mtr[0].begin(), mtr[0].end(), 1))
 		return 1;
-	if (count(mtr[11].begin(), mtr[0].end(), 1) < count(mtr[11].begin(), mtr[0].end(), 2))
+	if (count(mtr[11].begin(), mtr[11].end(), 1) < count(mtr[11].begin(), mtr[11].end(), 2))
 		return 2;
 	return 0;
 }
@@ -247,7 +236,9 @@ STMove convFromStr(string moveSt) {
 		}
 	}
 	else if (moveSt.size() == 8) {
-		if (moveSt[0] != moveSt[3] and moveSt[6] != moveSt[7]) {
+		//Ef-Gh-Bc
+		//01234567
+		if (moveSt[0] != moveSt[6] and moveSt[1] != moveSt[7]) {
 			if (moveSt[0] < moveSt[6]) {
 				if (moveSt[1] < moveSt[7]) {
 					STMove mv;
@@ -414,14 +405,11 @@ string convToStr(STMove move) {
 }
 
 bool checkMoveAbility(vector<vector<int>>& mtr, int crp, STMove move) {
-    // Проверка границ для всех координат
     if (move.ex < 0 || move.ey < 0 || move.ex >= CPH || move.ey >= CPW ||
         move.bx1 < 0 || move.by1 < 0 || move.bx1 >= CPH || move.by1 >= CPW ||
         move.bx2 < 0 || move.by2 < 0 || move.bx2 >= CPH || move.by2 >= CPW) {
         return false;
     }
-
-    // Проверка, что начальные фишки принадлежат игроку
     int dx = 0, dy = 0;
     switch (move.dir) {
         case EDir::UP:    dx = -1; break;
@@ -434,39 +422,32 @@ bool checkMoveAbility(vector<vector<int>>& mtr, int crp, STMove move) {
         case EDir::DWLT:  dx = 1; dy = -1; break;
     }
 
-    // Проверка, что все фишки в линии принадлежат игроку
     for (int i = 0; i < move.len; ++i) {
-        int x = move.bx1 + i * -dx;
-        int y = move.by1 + i * -dy;
+        int x = move.bx1 + i * ( - dx);
+        int y = move.by1 + i * ( - dy);
         if (x < 0 || y < 0 || x >= CPH || y >= CPW || mtr[x][y] != crp) {
             return false;
         }
     }
 
-    // Проверка, что путь свободен
-    int dist = (dx && dy) ? abs(move.ex - move.bx1) :
-               max(abs(move.ex - move.bx1), abs(move.ey - move.by1));
-
-    for (int i = 1; i <= dist; ++i) {
-        int x = move.bx1 + i * dx;
-        int y = move.by1 + i * dy;
+   
+    for (int i = 1; i < move.len; ++i) {
+        int x = move.ex - i * dx;
+        int y = move.ey - i * dy;
         if (x < 0 || y < 0 || x >= CPH || y >= CPW || mtr[x][y] != 0) {
             return false;
         }
     }
 
-    // Проверка конечной позиции
     if (mtr[move.ex][move.ey] == crp) {
         return false;
     }
 
-    // Если конечная позиция содержит вражескую фишку
     if (mtr[move.ex][move.ey] == 3 - crp) {
-        int enemyLen = 0;
+        int enemyLen = 1;
         int cx = move.ex;
         int cy = move.ey;
 
-        // Считаем врагов в направлении атаки
         while (true) {
             cx += dx;
             cy += dy;
@@ -475,7 +456,6 @@ bool checkMoveAbility(vector<vector<int>>& mtr, int crp, STMove move) {
             enemyLen++;
         }
 
-        // Сравниваем длину атакующей и защищающейся линии
         if (move.len <= enemyLen) {
             return false;
         }
@@ -492,23 +472,35 @@ void makeMove(vector<vector<int>>& mtr, const STMove& move) {
 		mtr[move.ex][move.ey] = p;
 		return;
 	}
-
-	const int dx = (move.ex != move.bx1) ? (move.ex > move.bx1 ? 1 : -1) : 0;
-	const int dy = (move.ey != move.by1) ? (move.ey > move.by1 ? 1 : -1) : 0;
-
-	for (int i = 0; i < move.len; ++i) {
-		int x = move.bx1 + i * dx;
-		int y = move.by1 + i * dy;
-		if (x >= 0 && y >= 0 && x < CPH && y < CPW) {
-			mtr[x][y] = 0;
-		}
+	int dx = 0, dy = 0;
+	switch (move.dir) {
+	case EDir::UP:    dx = -1; break;
+	case EDir::DW:    dx = 1;  break;
+	case EDir::LT:    dy = -1; break;
+	case EDir::RT:    dy = 1;  break;
+	case EDir::UPRT:  dx = -1; dy = 1; break;
+	case EDir::UPLT:  dx = -1; dy = -1; break;
+	case EDir::DWRT:  dx = 1; dy = 1; break;
+	case EDir::DWLT:  dx = 1; dy = -1; break;
 	}
-
+	int ctr = mtr[move.bx1][move.by1];
+	bool ff = false;
 	for (int i = 0; i < move.len; ++i) {
 		int x = move.ex - i * dx;
 		int y = move.ey - i * dy;
+		if (x == move.bx1 and y == move.by1) {
+			ff = true;
+		}
 		if (x >= 0 && y >= 0 && x < CPH && y < CPW) {
-			mtr[x][y] = mtr[move.bx1][move.by1];
+			mtr[x][y] = ctr;
+		}
+	}
+
+	for (int i = ff ? 1:0; i < move.len; ++i) {
+		int x = move.bx1+ i * (-dx);
+		int y = move.by1 + i * (-dy);
+		if (x >= 0 && y >= 0 && x < CPH && y < CPW) {
+			mtr[x][y] = 0;
 		}
 	}
 
@@ -519,12 +511,11 @@ void makeMove(vector<vector<int>>& mtr, const STMove& move) {
 		cx += dx;
 		cy += dy;
 	}
-	if (mtr[move.ex][move.ey] == 3 - mtr[move.bx1][move.by1]) {
-		int p = mtr[move.bx1][move.by1];
+	if (mtr[move.ex][move.ey] == 3 - ctr) {
+		int p = ctr;
 		int dx = (move.ex != move.bx1) ? (move.ex > move.bx1 ? 1 : -1) : 0;
 		int dy = (move.ey != move.by1) ? (move.ey > move.by1 ? 1 : -1) : 0;
 
-		// Удаляем ровно move.len вражеских шашек
 		int captured = 0;
 		int cx = move.ex;
 		int cy = move.ey;
@@ -579,77 +570,133 @@ void gemAllMoves(vector < vector<int> >& mtr, vector<STMove>& mvs, int crp) {
 }
 
 
-int evaluatePosition(const vector<vector<int>>& mtr, int crp) {
-	const int targetRow = crp == 1 ? 0 : CPH - 1;
+
+
+const int TDB = 2000;  
+const int TPB = 100;    
+const int ETP = -150;    
+
+
+int evaluatePosition( vector<vector<int>>& mtr, int crp) {
+	if (checkWin(mtr) == crp) return INT64_MAX;
+	if (checkWin(mtr) == 3-crp) return INT64_MIN;
+	const int targetRow = (crp == 1) ? CPH - 1:0;
+	const int enemyRow = (crp == 1) ?  0: CPH - 1;
 	int score = 0;
-	int frontLine[CPW] = { 0 };
+
+	// Критически важные показатели
+	int myTarget = 0, enemyTarget = 0;
+	for (int j = 0; j < CPW; ++j) {
+		if (mtr[targetRow][j] == crp) myTarget++;
+		if (mtr[enemyRow][j] == 3 - crp) enemyTarget++;
+	}
+
+	// Бонусы за доминирование на целевых линиях
+	if (myTarget > enemyTarget) {
+		score += TDB + (myTarget - enemyTarget) * 500;
+	}
+
+	score += myTarget * TPB;
+	score += enemyTarget * ETP;
+
+	// Дополнительные факторы
+	int distanceScore = 0;
+	int phalanxScore = 0;
 
 	for (int i = 0; i < CPH; ++i) {
 		for (int j = 0; j < CPW; ++j) {
 			if (mtr[i][j] == crp) {
-				int dist = abs(i - targetRow);
-				score += (CPH - dist) * 100;
+				// Расстояние до цели
+				distanceScore += ((crp == 1) ? (CPH - 1 - i) : i) * 1000;
 
-				if (j >= 4 && j < 10) score += 30;
-
-				if (dist < 3) frontLine[j]++;
+				// Проверка фаланг
+				for (int d = 0; d < 8; ++d) {
+					int ni = i + dirs[d].first;
+					int nj = j + dirs[d].second;
+					if (ni >= 0 && ni < CPH && nj >= 0 && nj < CPW && mtr[ni][nj] == crp) {
+						phalanxScore += 30;
+					}
+				}
 			}
 		}
 	}
 
-	int maxConcentration = 0;
-	for (int j = 0; j < CPW; ++j) {
-		if (frontLine[j] > 2) score += 50;
-		maxConcentration = max(maxConcentration, frontLine[j]);
+	score += distanceScore;
+	score += phalanxScore;
+	for (int i = 0; i < CPH; ++i) {
+		for (int j = 0; j < CPW; ++j) {
+		
+		}
 	}
-	score += maxConcentration * 40;
-
 	return score;
 }
 
+int caclPrem(const vector<vector<int>>& mtr, int crp) {
+	const int targetRow = (crp == 1) ? 0 : CPH - 1;
+	int my = 0, enemy = 0;
+
+	for (int j = 0; j < CPW; ++j) {
+		if (mtr[targetRow][j] == crp) my++;
+		if (mtr[targetRow][j] == 3 - crp) enemy++;
+	}
+
+	if (my > enemy) return 1000 + (my - enemy) * 500;
+	if (my < enemy) return -800;
+	return enemy * -100;
+}
+
 STMove findOptimalMove(vector<vector<int>>& mtr, int crp) {
-    vector<STMove> moves;
-    gemAllMoves(mtr, moves,crp);
-    
-    int bestScore = INT_MIN;
-    STMove bestMove;
+	//const int MMA = 100;
+	vector<STMove> moves;
+	gemAllMoves(mtr, moves, crp);
 
-    for (const STMove& move : moves) {
-        vector<vector<int>> tmp = mtr;
-        if (!checkMoveAbility(tmp, crp, move)) continue;
-        makeMove(tmp, move);
+	sort(moves.begin(), moves.end(), [crp](const STMove& a, const STMove& b) {
+		return a.len > b.len; 
+		});
 
-        int score = 0;
+	
 
-        // Бонус за длину фаланги
-        score += move.len * 10;
+	int bestScore = INT_MIN;
+	STMove bestMove;
 
-        // Бонус за продвижение
-        int delta = crp == 1 ? (move.bx1 - move.ex) : (move.ex - move.bx1);
-        score += delta * 5;
+	struct {
+		float current = 0.6f;
+		float opponent = 0.3f;
+		float dominance = 0.8f;
+	} weights;
 
-        // Проверим, сбивает ли фаланга кого-то
-        int cx = move.ex, cy = move.ey;
-        int dx = (move.ex - move.bx1 == 0 ? 0 : (move.ex - move.bx1) / abs(move.ex - move.bx1));
-        int dy = (move.ey - move.by1 == 0 ? 0 : (move.ey - move.by1) / abs(move.ey - move.by1));
+	for (STMove& move : moves) {
+		vector<vector<int>> tmp = mtr;
+		if (!checkMoveAbility(tmp, crp, move)) continue;
+		makeMove(tmp, move);
 
-        cx += dx;
-        cy += dy;
-        while (cx >= 0 && cy >= 0 && cx < CPH && cy < CPW) {
-            if (tmp[cx][cy] == 3 - crp) {
-                score += 50;
-            } else break;
-            cx += dx;
-            cy += dy;
-        }
+		int crSc = evaluatePosition(tmp, crp);
 
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = move;
-        }
-    }
+		int worstEnemyScore = INT_MAX;
+		vector<STMove> enemyMoves;
+		gemAllMoves(tmp, enemyMoves, 3 - crp);
 
-    return bestMove;
+		for (STMove& enemyMove : enemyMoves) {
+			vector<vector<int>> tmpEnemy = tmp;
+			if (!checkMoveAbility(tmpEnemy, 3 - crp, enemyMove)) continue;
+			makeMove(tmpEnemy, enemyMove);
+
+			int emSc = evaluatePosition(tmpEnemy, crp); 
+			worstEnemyScore = min(worstEnemyScore, emSc);
+		}
+		int dmS = caclPrem(tmp, crp);
+		int finalScore =
+			crSc * weights.current +
+			(worstEnemyScore != INT_MAX ? worstEnemyScore * weights.opponent : 0) +
+			dmS * weights.dominance;
+
+		if (finalScore > bestScore) {
+			bestScore = finalScore;
+			bestMove = move;
+		}
+	}
+
+	return bestMove;
 }
 
 int main() {
@@ -672,6 +719,7 @@ int main() {
 	crp++;
 	string mvS;
 	bool f = true;
+	
 	if (crp == 2) {
 		if (f) {
 			cin.ignore();
@@ -680,8 +728,9 @@ int main() {
 		getline(cin, mvS);
 		makeMove(mtr, convFromStr(mvS));
 	}
+	
 
-	 for (size_t i = 0; i < nn; i++)
+	for (size_t i = 0; i < nn; i++)
 	{
 		STMove mv = findOptimalMove(mtr, crp);
 		makeMove(mtr, mv);
@@ -689,14 +738,14 @@ int main() {
 		if (f) {
 			cin.ignore(); f = false;
 		}
-		printMap(mtr);
-		out << endl;
+		//printMap(mtr);
+		///out << endl;
 		getline(cin, mvS);
 		makeMove(mtr, convFromStr(mvS));
-		printMap(mtr);
-		out << endl;
+		///out << endl;
 	}
 
+	
 	return 0;
 }
 
